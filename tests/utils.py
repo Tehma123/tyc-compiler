@@ -80,6 +80,63 @@ class Tokenizer:
 
         return ",".join(tokens)
 
+    def tokenize(self):
+        """Return a list of token-like objects with `.type` (symbolic name) and `.text`.
+
+        Filters out whitespace and comment tokens so tests see only meaningful tokens.
+        Any lexer exceptions (IllegalEscape, UncloseString, ErrorToken) are allowed
+        to propagate to the caller (tests expect them).
+        """
+        from types import SimpleNamespace
+        from src.grammar.lexererr import ErrorToken, IllegalEscape, UncloseString
+
+        input_stream = InputStream(self.source_code)
+        lexer = TyCLexer(input_stream)
+
+        def extract_unclosed_text() -> str:
+            start = self.source_code.find('"')
+            if start == -1:
+                return ""
+            rest = self.source_code[start + 1 :]
+            for idx, ch in enumerate(rest):
+                if ch in "\r\n":
+                    return rest[:idx]
+            return rest
+
+        def rethrow_lexer_error(err: Exception) -> None:
+            msg = str(err)
+            if msg.startswith("Illegal Escape In String: "):
+                raise IllegalEscape(msg[len("Illegal Escape In String: ") :])
+            if msg.startswith("Unclosed String: "):
+                raise UncloseString(msg[len("Unclosed String: ") :])
+            if msg.startswith("Error Token "):
+                token_text = msg[len("Error Token ") :]
+                if token_text == '"' and self.source_code.count('"') % 2 == 1:
+                    raise UncloseString(extract_unclosed_text())
+                raise ErrorToken(token_text)
+            raise err
+
+        result = []
+        try:
+            while True:
+                tok = lexer.nextToken()
+                if tok.type == -1:
+                    break
+                # Skip whitespace and comments
+                if tok.type in (TyCLexer.WS, TyCLexer.LINE_COMMENT, TyCLexer.BLOCK_COMMENT):
+                    continue
+                # Map numeric type to symbolic name when available
+                try:
+                    type_name = TyCLexer.symbolicNames[tok.type]
+                except Exception:
+                    type_name = str(tok.type)
+
+                result.append(SimpleNamespace(type=type_name, text=(tok.text or "")))
+        except Exception as err:
+            rethrow_lexer_error(err)
+
+        return result
+
 
 class Parser:
     """Parser wrapper for testing"""

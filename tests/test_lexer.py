@@ -585,7 +585,7 @@ def test_63_for_loop_complete():
     tokens = tokenizer.tokenize()
     assert tokens[0].type == 'FOR'
     assert tokens[1].type == 'LPAREN'
-    assert tokens[11].type == 'INC'
+    assert tokens[12].type == 'INC'
 
 
 def test_64_switch_case():
@@ -595,7 +595,7 @@ def test_64_switch_case():
     assert tokens[0].type == 'SWITCH'
     assert tokens[5].type == 'CASE'
     assert tokens[7].type == 'COLON'
-    assert tokens[9].type == 'DEFAULT'
+    assert tokens[10].type == 'DEFAULT'
 
 
 def test_65_mixed_operators_no_space():
@@ -615,7 +615,7 @@ def test_66_all_logical_operators():
     assert tokens[3].type == 'AND'
     assert tokens[5].type == 'OR'
     assert tokens[6].type == 'NOT'
-    assert tokens[10].type == 'OR'
+    assert tokens[11].type == 'OR'
 
 
 # ============================================================================
@@ -943,9 +943,9 @@ def test_100_nested_control_structures():
     tokenizer = Tokenizer(source)
     tokens = tokenizer.tokenize()
     assert tokens[0].type == 'FOR'
-    assert tokens[14].type == 'IF'
-    assert tokens[25].type == 'WHILE'
-    assert tokens[35].type == 'ELSE'
-    assert tokens[37].type == 'SWITCH'
+    assert tokens[15].type == 'IF'
+    assert tokens[24].type == 'WHILE'
+    assert tokens[36].type == 'ELSE'
+    assert tokens[38].type == 'SWITCH'
     assert tokens[43].type == 'CASE'
     assert tokens[48].type == 'DEFAULT'

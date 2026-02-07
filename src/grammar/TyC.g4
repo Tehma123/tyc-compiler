@@ -28,7 +28,7 @@ options{
 // Note: Semantic analysis must enforce that a 'main' function exists
 // with signature: void main() or main() with inferred void return type
 program
-    : (decl)+ EOF
+    : (decl)* EOF
     ;
 
 decl
@@ -140,20 +140,41 @@ forUpdate
 
 // switch (expr) { case ... default ... }
 switchStmt
-    : SWITCH LPAREN expr RPAREN LBRACE switchSection* RBRACE
+    : SWITCH LPAREN expr RPAREN LBRACE switchSection* defaultSection? switchSection* RBRACE
     ;
 
 switchSection
     : (caseLabel)+ stmt*
-    | defaultLabel stmt*
+    ;
+
+defaultSection
+    : DEFAULT COLON stmt*
     ;
 
 caseLabel
-    : CASE expr COLON
+    : CASE constExpr COLON
     ;
 
-defaultLabel
-    : DEFAULT COLON
+constExpr
+    : constAddExpr
+    ;
+
+constAddExpr
+    : constMulExpr ((PLUS | MINUS) constMulExpr)*
+    ;
+
+constMulExpr
+    : constUnaryExpr ((MUL | DIV | MOD) constUnaryExpr)*
+    ;
+
+constUnaryExpr
+    : (PLUS | MINUS) constUnaryExpr
+    | constPrimary
+    ;
+
+constPrimary
+    : INT_LITERAL
+    | LPAREN constExpr RPAREN
     ;
 expr
     : assignExpr
@@ -194,44 +215,44 @@ mulExpr
 
 // prefix: ! + - ++ --
 unaryExpr
-    : (NOT | PLUS | MINUS) unaryExpr
-    | incDecExpr
+    : prefixIncDec
+    | (NOT | PLUS | MINUS) unaryExpr
     | postfixExpr
+    ;
+
+prefixIncDec
+    : (INC | DEC) lvalue
+    ;
+
+incDecExpr
+    : prefixIncDec
+    | lvalue (INC | DEC)
     ;
 
 // postfix: member access has highest precedence, then call, ++ --
 // All postfix operators are left-associative at the same level
 postfixExpr
-    : postfixMember
+    : postfixPrimary postfixOp*
+    ;
+
+postfixOp
+    : DOT ID
+    | INC
+    | DEC
+    ;
+
+postfixPrimary
+    : postfixCall
     | primaryExpr
-    ;
-
-postfixMember
-    : memberBase (DOT ID)*
-    ;
-
-memberBase
-    : ID
-    | postfixCall
-    | LPAREN expr RPAREN
-    | structLiteral
     ;
 
 postfixCall
     : ID LPAREN argList? RPAREN
     ;
 
-incDecExpr
-    : (INC | DEC) lvalue
-    | lvalue (INC | DEC)
-    ;
-
 lvalue
-    : lvalueBase (DOT ID)*
-    ;
-
-lvalueBase
-    : ID
+    : ID (DOT ID)*
+    | postfixCall (DOT ID)+
     | LPAREN lvalue RPAREN
     ;
 

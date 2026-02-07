@@ -7,6 +7,7 @@ import pytest
 from tests.utils import Parser
 
 
+<<<<<<< HEAD
 # ============================================================================
 # SIMPLE VARIABLE DECLARATIONS (Tests 1-5)
 # ============================================================================
@@ -1171,3 +1172,4 @@ def test_100_complete_complex_program():
     parser = Parser(source)
     ast = parser.parse()
     assert ast is not None
+

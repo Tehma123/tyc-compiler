@@ -8,7 +8,6 @@ from tests.utils import Tokenizer
 from src.grammar.lexererr import UncloseString, IllegalEscape, ErrorToken
 
 
-<<<<<<< HEAD
 # ============================================================================
 # KEYWORDS (Tests 1-15)
 # ============================================================================

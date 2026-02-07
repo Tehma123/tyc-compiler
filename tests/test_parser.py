@@ -6,8 +6,6 @@ Tests syntax parsing of TyC language constructs
 import pytest
 from tests.utils import Parser
 
-
-<<<<<<< HEAD
 # ============================================================================
 # SIMPLE VARIABLE DECLARATIONS (Tests 1-5)
 # ============================================================================
